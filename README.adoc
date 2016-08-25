@@ -1,5 +1,8 @@
 = jOOQ DBUnit Flyway Example
 
+image:https://travis-ci.org/rmpestano/jOOQ-DBUnit-flyway-example.svg[Build Status (Travis CI), link=https://travis-ci.org/rmpestano/jOOQ-DBUnit-flyway-example]
+
+
 Modified example from https://github.com/jOOQ/jOOQ/tree/master/jOOQ-examples/jOOQ-flyway-example[jOOQ repository^] to add DBUnit via https://github.com/rmpestano/dbunit-rules[DBUnit rules^].
 
 Thanks for downloading jOOQ.
