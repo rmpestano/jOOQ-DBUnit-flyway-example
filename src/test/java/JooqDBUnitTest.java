@@ -26,18 +26,10 @@ public class JooqDBUnitTest {
     private static String DB_URL = "jdbc:h2:" + Paths.get("target").toAbsolutePath().toString() +
             "/flyway-test";
 
-    private static Connection connection = createConnection();
-
     private static Flyway flyway;
 
-    private static Connection createConnection() {
-        try {
-            return DriverManager.getConnection(DB_URL, "sa", "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
+    private static Connection connection;
 
     @Rule
     public DBUnitRule dbUnitRule = DBUnitRule.
@@ -51,6 +43,7 @@ public class JooqDBUnitTest {
         flyway.setLocations("filesystem:src/main/resources/db/migration");
         flyway.migrate();
 
+        connection = flyway.getDataSource().getConnection();
         //add some data to test db cleanup
         try (Statement stmt = connection.createStatement()){
             stmt.addBatch("INSERT INTO flyway_test.author(id, first_name, last_name, date_of_birth, year_of_birth, address) VALUES (1, 'Erich', 'Gamma','1903-06-25','1900',null)");
