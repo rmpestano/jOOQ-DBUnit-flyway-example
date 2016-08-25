@@ -1,5 +1,6 @@
 import com.github.dbunit.rules.DBUnitRule;
 import com.github.dbunit.rules.api.dataset.DataSet;
+import com.github.dbunit.rules.api.dataset.ExpectedDataSet;
 import org.dbunit.database.DatabaseConfig;
 import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
@@ -114,6 +115,20 @@ public class JooqDBUnitTest {
         assertEquals(0, size);
     }
 
+    @Test
+    @DataSet("empty.yml")
+    @ExpectedDataSet(value="expected_authors.yml",ignoreCols = "id")
+    public void shouldInsertAuthorsAndCompareDatabaseWithExpectedDataSet() throws Exception {
+        assertEquals(0, countAuthors());
+        try (Statement stmt = connection.createStatement()){
+            stmt.addBatch("INSERT INTO flyway_test.author(id, first_name, last_name, date_of_birth, year_of_birth, address) VALUES (1, 'Erich', 'Gamma','1903-06-25','1900',null)");
+            stmt.addBatch("INSERT INTO flyway_test.author(id, first_name, last_name, date_of_birth, year_of_birth, address) VALUES (2, 'Richard', 'Helm','1903-06-25','1900',null)");
+            int[] result = stmt.executeBatch();
+            assertEquals(result.length, 2);
+        }
+        assertEquals(2, countAuthors());
+
+    }
 
     public static int countAuthors() {
         return DSL.using(connection).fetchCount(AUTHOR);
