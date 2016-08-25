@@ -1,5 +1,4 @@
 import com.github.dbunit.rules.DBUnitRule;
-import com.github.dbunit.rules.api.connection.ConnectionHolder;
 import com.github.dbunit.rules.api.dataset.DataSet;
 import org.dbunit.database.DatabaseConfig;
 import org.flywaydb.core.Flyway;
@@ -12,9 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static org.jooq.example.flyway.db.h2.Tables.AUTHOR;
 import static org.jooq.example.flyway.db.h2.Tables.BOOK;
@@ -47,12 +44,19 @@ public class JooqDBUnitTest {
 
 
     @BeforeClass
-    public static void initMigration() {
+    public static void initMigration() throws SQLException {
         flyway = new Flyway();
         flyway.setDataSource(DB_URL, "sa", "");
         flyway.setLocations("filesystem:src/main/resources/db/migration");
         flyway.migrate();
 
+        //add some data to test db cleanup
+        try (Statement stmt = connection.createStatement()){
+            stmt.addBatch("INSERT INTO flyway_test.author(id, first_name, last_name, date_of_birth, year_of_birth, address) VALUES (1, 'Erich', 'Gamma','1903-06-25','1900',null)");
+            stmt.addBatch("INSERT INTO flyway_test.author(id, first_name, last_name, date_of_birth, year_of_birth, address) VALUES (2, 'Richard', 'Helm','1903-06-25','1900',null)");
+            int[] result = stmt.executeBatch();
+            assertEquals(result.length, 2);
+        }
         //adds support for schema in datasets
         System.setProperty(DatabaseConfig.FEATURE_QUALIFIED_TABLE_NAMES, Boolean.TRUE.toString());
     }
