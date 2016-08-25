@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class JooqDBUnitTest {
 
-    private static String DB_URL = "jdbc:h2:"+Paths.get("target").toAbsolutePath().toString() +
+    private static String DB_URL = "jdbc:h2:" + Paths.get("target").toAbsolutePath().toString() +
             "/flyway-test";
 
     private static Connection connection = createConnection();
@@ -42,15 +42,15 @@ public class JooqDBUnitTest {
     }
 
     @Rule
-    public DBUnitRule dbUnitRule = DBUnitRule.instance(() -> flyway.getDataSource().getConnection());
-
+    public DBUnitRule dbUnitRule = DBUnitRule.
+            instance(() -> flyway.getDataSource().getConnection());
 
 
     @BeforeClass
-    public static void initMigration(){
+    public static void initMigration() {
         flyway = new Flyway();
         flyway.setDataSource(DB_URL, "sa", "");
-                flyway.setLocations("filesystem:src/main/resources/db/migration");
+        flyway.setLocations("filesystem:src/main/resources/db/migration");
         flyway.migrate();
 
         //adds support for schema in datasets
@@ -60,14 +60,14 @@ public class JooqDBUnitTest {
     @AfterClass
     public static void cleanMigration() throws SQLException {
         flyway.clean();
-        if(!connection.isClosed()){
+        if (!connection.isClosed()) {
             connection.close();
         }
     }
 
     @Test
     @DataSet("authors.yml,books.yml")
-    public void shouldListAuthorsAndBooks(){
+    public void shouldListAuthorsAndBooks() {
         Result<?> result =
                 DSL.using(connection)
                         .select(
@@ -87,9 +87,9 @@ public class JooqDBUnitTest {
 
 
     @Test
-    @DataSet(cleanBefore = true, tableOrdering = {"flyway_test.book","flyway_test.author"})
+    @DataSet(cleanBefore = true, tableOrdering = {"flyway_test.book", "flyway_test.author"})
     public void shouldClearDataBaseUsingSequenceOrder() throws Exception {
-        int size =  countAuthors() + countBooks();
+        int size = countAuthors() + countBooks();
         assertEquals(0, size);
     }
 
@@ -98,7 +98,7 @@ public class JooqDBUnitTest {
     @DataSet(cleanBefore = true, disableConstraints = true)
     public void shouldClearDataBaseDisablingConstraints() throws Exception {
         DSLContext dsl = DSL.using(connection);
-        int size =  dsl.fetchCount(AUTHOR);
+        int size = dsl.fetchCount(AUTHOR);
         assertEquals(0, size);
     }
 
@@ -106,19 +106,16 @@ public class JooqDBUnitTest {
     @DataSet("empty.yml")
     public void shouldClearDataBaseUsingEmptyDataSet() throws Exception {
         DSLContext dsl = DSL.using(connection);
-        int size =  dsl.fetchCount(AUTHOR);
+        int size = dsl.fetchCount(AUTHOR);
         assertEquals(0, size);
     }
 
 
-
-
-
-    public static int countAuthors(){
+    public static int countAuthors() {
         return DSL.using(connection).fetchCount(AUTHOR);
     }
 
-    public static int countBooks(){
+    public static int countBooks() {
         return DSL.using(connection).fetchCount(BOOK);
     }
 }
